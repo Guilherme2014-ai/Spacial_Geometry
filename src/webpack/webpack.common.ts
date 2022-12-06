@@ -6,7 +6,7 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
-  plugins: [new miniCssExtractPlugin()],
+
   module: {
     rules: [
       {
@@ -20,6 +20,8 @@ module.exports = {
       },
     ],
   },
+
+  plugins: [new miniCssExtractPlugin()],
   output: {
     filename: "bundle.js",
     path: resolve(__dirname, "..", "..", "dist"),
