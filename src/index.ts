@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { Vector2, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 // CSS
@@ -20,8 +19,9 @@ const thirdBall = new THREE.Mesh(
   new THREE.SphereGeometry(7),
   new THREE.MeshLambertMaterial({ color: "blue" })
 );
-thirdBall.position.x = -150;
-thirdBall.position.z = -180;
+thirdBall.position.x = -280;
+thirdBall.position.z = 90;
+thirdBall.position.y = -280;
 
 scene.add(axes);
 scene.add(circle);
@@ -56,15 +56,18 @@ function animate() {
 animate();
 
 function moveThird() {
-  const force = 1;
-  const { cosCoeficient, sinCoeficient } = relativeAngle(
+  const force = 2;
+
+  const { forceX, forceZ, forceY } = relativeAngle(
     thirdBall.position,
     circle.position
   );
 
-  console.log(`force: ${force}`);
-  thirdBall.position.x += force * cosCoeficient;
-  thirdBall.position.z += force * sinCoeficient;
+  const { x, y, z } = getDirections(thirdBall.position, circle.position);
+
+  thirdBall.position.x += force * forceX * x;
+  thirdBall.position.z += force * forceZ * z;
+  thirdBall.position.y += force * forceY * y;
 }
 
 function relativeAngle(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
@@ -75,12 +78,26 @@ function relativeAngle(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
 
   const catetAd = getDelta(elemPos01.x, elemPos02.x);
   const catetOp = getDelta(elemPos01.z, elemPos02.z);
+  const catetOpH = getDelta(elemPos01.y, elemPos02.y);
 
   const distanceBetwenn = Math.sqrt(catetAd ** 2 + catetOp ** 2);
-  console.log(`Distance: ${distanceBetwenn}`);
+  const distanceBetwenn3DAngle = Math.sqrt(
+    catetOpH ** 2 + distanceBetwenn ** 2
+  );
 
-  const sinCoeficient = catetOp / distanceBetwenn;
-  const cosCoeficient = catetAd / distanceBetwenn;
+  const forceZ = catetOp / distanceBetwenn;
+  const forceX = catetAd / distanceBetwenn;
+  const forceY = catetOpH / distanceBetwenn3DAngle;
 
-  return { sinCoeficient, cosCoeficient };
+  console.log(distanceBetwenn);
+
+  return { forceZ, forceX, forceY };
+}
+
+function getDirections(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
+  const x = elemPos01.x < elemPos02.x ? 1 : -1;
+  const y = elemPos01.y < elemPos02.y ? 1 : -1;
+  const z = elemPos01.z < elemPos02.z ? 1 : -1;
+
+  return { x, y, z };
 }
