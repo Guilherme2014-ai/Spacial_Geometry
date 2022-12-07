@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { animate } from "./main";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 // CSS
@@ -7,116 +8,32 @@ import "./index.scss";
 const scene = new THREE.Scene();
 const element = document.getElementById("content") as HTMLDivElement;
 
-const axes = new THREE.AxesHelper(45);
+const axes = new THREE.AxesHelper(100000);
 const ambientLight = new THREE.AmbientLight("white");
+const light01 = new THREE.PointLight();
 
-const circle = new THREE.Mesh(
-  new THREE.SphereGeometry(10),
-  new THREE.MeshLambertMaterial({ color: "red" })
-);
-
-const thirdBall = new THREE.Mesh(
-  new THREE.SphereGeometry(7),
-  new THREE.MeshLambertMaterial({ color: "blue" })
-);
-thirdBall.position.x = -280;
-thirdBall.position.z = 90;
-thirdBall.position.y = -280;
+light01.position.set(10, 10, 10);
 
 scene.add(axes);
-scene.add(circle);
-scene.add(thirdBall);
 scene.add(ambientLight);
+scene.add(light01);
 
 const camera = new THREE.PerspectiveCamera(
-  75,
+  40,
   window.innerWidth / window.innerHeight,
-  0.1,
-  1000
+  1,
+  10000
 );
 camera.position.z = 60;
 camera.position.x = 25;
 camera.position.y = 280;
 
 const renderer = new THREE.WebGLRenderer();
+new OrbitControls(camera, renderer.domElement);
+
 renderer.setSize(window.innerWidth, window.innerHeight);
 element.appendChild(renderer.domElement);
 
-new OrbitControls(camera, renderer.domElement);
+animate(renderer, scene, camera);
 
-let force = 0;
-let thirdBallSpeedX = 0,
-  thirdBallSpeedY = 0,
-  thirdBallSpeedZ = 0;
-
-function animate() {
-  requestAnimationFrame(() => {
-    renderer.render(scene, camera);
-    animate();
-  });
-
-  thirdBallSelfSpeed();
-  moveThird();
-}
-
-animate();
-
-function thirdBallSelfSpeed() {
-  thirdBall.position.x += thirdBallSpeedX;
-  thirdBall.position.y += thirdBallSpeedY;
-  thirdBall.position.z += thirdBallSpeedZ;
-}
-
-setInterval(() => {
-  force += 0.00001;
-}, 100);
-
-function moveThird() {
-  const { forceX, forceZ, forceY } = relativeAngle(
-    thirdBall.position,
-    circle.position
-  );
-
-  const { directionX, directionY, directionZ } = getDirections(
-    thirdBall.position,
-    circle.position
-  );
-
-  const x = force * forceX * directionX;
-  const y = force * forceY * directionY;
-  const z = force * forceZ * directionZ;
-
-  thirdBallSpeedX += x;
-  thirdBallSpeedY += y;
-  thirdBallSpeedZ += z;
-}
-
-function relativeAngle(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
-  const getDelta = (x1: number, x2: number) => {
-    const result = x1 - x2;
-    return result > 0 ? result : -1 * result;
-  };
-
-  const catetAd = getDelta(elemPos01.x, elemPos02.x);
-  const catetOp = getDelta(elemPos01.z, elemPos02.z);
-  const catetOpH = getDelta(elemPos01.y, elemPos02.y);
-
-  const distanceBetwenn = Math.sqrt(catetAd ** 2 + catetOp ** 2);
-  const distanceBetwenn3DAngle = Math.sqrt(
-    catetOpH ** 2 + distanceBetwenn ** 2
-  );
-
-  const forceZ = catetOp / distanceBetwenn;
-  const forceX = catetAd / distanceBetwenn;
-  const forceY = catetOpH / distanceBetwenn3DAngle;
-
-  return { forceZ, forceX, forceY };
-}
-
-function getDirections(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
-  const directionX = elemPos01.x < elemPos02.x ? 1 : -1;
-  const directionY = elemPos01.y < elemPos02.y ? 1 : -1;
-  const directionZ = elemPos01.z < elemPos02.z ? 1 : -1;
-
-  return { directionX, directionY, directionZ };
-}
+export { scene };

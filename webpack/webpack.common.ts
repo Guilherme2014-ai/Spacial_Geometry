@@ -2,7 +2,7 @@ import { resolve } from "path";
 import miniCssExtractPlugin from "mini-css-extract-plugin";
 
 module.exports = {
-  entry: resolve(__dirname, "..", "index.ts"),
+  entry: resolve(__dirname, "..", "src", "index.ts"),
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
@@ -24,6 +24,6 @@ module.exports = {
   plugins: [new miniCssExtractPlugin()],
   output: {
     filename: "bundle.js",
-    path: resolve(__dirname, "..", "..", "dist"),
+    path: resolve(__dirname, "..", "dist"),
   },
 };
