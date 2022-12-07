@@ -45,6 +45,9 @@ element.appendChild(renderer.domElement);
 new OrbitControls(camera, renderer.domElement);
 
 let force = 0;
+let thirdBallSpeedX = 0,
+  thirdBallSpeedY = 0,
+  thirdBallSpeedZ = 0;
 
 function animate() {
   requestAnimationFrame(() => {
@@ -59,13 +62,13 @@ function animate() {
 animate();
 
 function thirdBallSelfSpeed() {
-  thirdBall.position.x += 2;
-  thirdBall.position.y += 5;
-  thirdBall.position.z += 2;
+  thirdBall.position.x += thirdBallSpeedX;
+  thirdBall.position.y += thirdBallSpeedY;
+  thirdBall.position.z += thirdBallSpeedZ;
 }
 
 setInterval(() => {
-  force += 0.1;
+  force += 0.00001;
 }, 100);
 
 function moveThird() {
@@ -83,11 +86,9 @@ function moveThird() {
   const y = force * forceY * directionY;
   const z = force * forceZ * directionZ;
 
-  if (forceX === 0 || forceZ === 0) console.log("quase");
-
-  thirdBall.position.x += x;
-  thirdBall.position.y += y;
-  thirdBall.position.z += z;
+  thirdBallSpeedX += x;
+  thirdBallSpeedY += y;
+  thirdBallSpeedZ += z;
 }
 
 function relativeAngle(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
