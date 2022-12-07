@@ -44,30 +44,50 @@ element.appendChild(renderer.domElement);
 
 new OrbitControls(camera, renderer.domElement);
 
+let force = 0;
+
 function animate() {
   requestAnimationFrame(() => {
     renderer.render(scene, camera);
     animate();
   });
 
+  thirdBallSelfSpeed();
   moveThird();
 }
 
 animate();
 
-function moveThird() {
-  const force = 2;
+function thirdBallSelfSpeed() {
+  thirdBall.position.x += 2;
+  thirdBall.position.y += 5;
+  thirdBall.position.z += 2;
+}
 
+setInterval(() => {
+  force += 0.1;
+}, 100);
+
+function moveThird() {
   const { forceX, forceZ, forceY } = relativeAngle(
     thirdBall.position,
     circle.position
   );
 
-  const { x, y, z } = getDirections(thirdBall.position, circle.position);
+  const { directionX, directionY, directionZ } = getDirections(
+    thirdBall.position,
+    circle.position
+  );
 
-  thirdBall.position.x += force * forceX * x;
-  thirdBall.position.z += force * forceZ * z;
-  thirdBall.position.y += force * forceY * y;
+  const x = force * forceX * directionX;
+  const y = force * forceY * directionY;
+  const z = force * forceZ * directionZ;
+
+  if (forceX === 0 || forceZ === 0) console.log("quase");
+
+  thirdBall.position.x += x;
+  thirdBall.position.y += y;
+  thirdBall.position.z += z;
 }
 
 function relativeAngle(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
@@ -89,15 +109,13 @@ function relativeAngle(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
   const forceX = catetAd / distanceBetwenn;
   const forceY = catetOpH / distanceBetwenn3DAngle;
 
-  console.log(distanceBetwenn);
-
   return { forceZ, forceX, forceY };
 }
 
 function getDirections(elemPos01: THREE.Vector3, elemPos02: THREE.Vector3) {
-  const x = elemPos01.x < elemPos02.x ? 1 : -1;
-  const y = elemPos01.y < elemPos02.y ? 1 : -1;
-  const z = elemPos01.z < elemPos02.z ? 1 : -1;
+  const directionX = elemPos01.x < elemPos02.x ? 1 : -1;
+  const directionY = elemPos01.y < elemPos02.y ? 1 : -1;
+  const directionZ = elemPos01.z < elemPos02.z ? 1 : -1;
 
-  return { x, y, z };
+  return { directionX, directionY, directionZ };
 }
