@@ -28,6 +28,7 @@ export class AstronomicalObject {
     objects.forEach((object) => {
       if (object.id != this.id) {
         const objectPosition = object.Model3D.position;
+
         const { distanceBetwenn } = this.getDistances(objectPosition);
         const currentIncrease = this.getGravitationalForce(
           distanceBetwenn,
@@ -46,7 +47,7 @@ export class AstronomicalObject {
         const { forceX, forceY, forceZ } = this.getFactoredForces(
           force,
           objectPosition
-        );
+        ); // Force --> Force Destribuction
 
         const vetorForceX = forceX * directionX;
         const vetorForceY = forceY * directionY;
@@ -89,7 +90,7 @@ export class AstronomicalObject {
   getGravitationalForce(distance: number, otherObjectMass: number) {
     const force = (otherObjectMass * this.mass) / distance ** 2;
 
-    return force;
+    return force / 100;
   }
 
   getDirections(otherObjectPosition: THREE.Vector3) {
