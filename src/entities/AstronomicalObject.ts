@@ -1,12 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as THREE from "three";
 import { idUniqueV2 } from "id-unique-protocol";
-import { rendomNegative } from "../functions/rendomNegative";
+import { randomSpeedAxis } from "../functions/randomSpeedAxis";
 
 const colors = ["red", "blue", "yellow", "purple", "green"];
 
 export class AstronomicalObject {
-  constructor(public mass: number, private color?: string) {}
+  constructor(
+    public mass: number,
+    private color?: string,
+    private speedX?: number,
+    private speedY?: number,
+    private speedZ?: number
+  ) {}
 
   public id = idUniqueV2();
   public Model3D = new THREE.Mesh(
@@ -18,9 +24,9 @@ export class AstronomicalObject {
     })
   );
 
-  private speedAxisX = Math.random() * 2 * rendomNegative();
-  private speedAxisY = Math.random() * 3 * rendomNegative();
-  private speedAxisZ = Math.random() * 4 * rendomNegative();
+  private speedAxisX = this.speedX || randomSpeedAxis();
+  private speedAxisY = this.speedY || 2;
+  private speedAxisZ = this.speedZ || randomSpeedAxis();
 
   private workingForces = {} as any;
 
@@ -30,10 +36,7 @@ export class AstronomicalObject {
         const objectPosition = object.Model3D.position;
 
         const { distanceBetwenn } = this.getDistances(objectPosition);
-        const currentIncrease = this.getGravitationalForce(
-          distanceBetwenn,
-          object.mass
-        );
+        const currentIncrease = this.getGravitationalForce(distanceBetwenn);
 
         if (!this.workingForces[`${object.id}`])
           this.workingForces[`${object.id}`] = 0;
@@ -58,6 +61,17 @@ export class AstronomicalObject {
         object.setSpeedAxisZ(vetorForceZ);
       }
     });
+  }
+
+  destroy(objects: AstronomicalObject[], scene: THREE.Scene) {
+    let elemIdx = 0;
+
+    objects.forEach((object, idx) => {
+      if (object.id === this.id) elemIdx = idx;
+    });
+
+    scene.remove(this.Model3D);
+    objects.length > 1 ? objects.splice(elemIdx, elemIdx) : objects.shift();
   }
 
   setSpeedAxisX(value: number) {
@@ -87,10 +101,10 @@ export class AstronomicalObject {
     return { forceX, forceY, forceZ };
   }
 
-  getGravitationalForce(distance: number, otherObjectMass: number) {
-    const force = (otherObjectMass * this.mass) / distance ** 2;
+  getGravitationalForce(distance: number) {
+    const force = this.mass / distance;
 
-    return force / 100;
+    return force / 230;
   }
 
   getDirections(otherObjectPosition: THREE.Vector3) {
